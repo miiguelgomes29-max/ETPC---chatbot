@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETPC - Escola Profissional de Carvalhos</title>
+  <style>
+    :root {
+      --primary: #0a4b88;
+      --primary-dark: #06335e;
+      --accent: #e67e22;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+
+    header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    header .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 1px; }
+    header nav a { color: white; text-decoration: none; margin-left: 1.5rem; font-weight: 500; }
+
+    .hero-container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; flex: 1; align-items: start; }
+    @media (max-width: 850px) { .hero-container { grid-template-columns: 1fr; } }
+
+    .info-section { display: flex; flex-direction: column; gap: 1.5rem; }
+    .info-section h1 { font-size: 2.2rem; color: var(--primary-dark); }
+    .info-section p { font-size: 1.05rem; color: var(--text-muted); }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .feature-card { background: var(--card-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .feature-card h3 { font-size: 1rem; color: var(--primary); margin-bottom: 0.3rem; }
+
+    /* Chat UI */
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 550px; }
+    .chat-header { background: var(--primary); color: white; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .chat-header h2 { font-size: 1.1rem; font-weight: 600; }
+    .chat-status { font-size: 0.8rem; background: #22c55e; padding: 0.2rem 0.6rem; border-radius: 12px; }
+
+    .chat-body { flex: 1; padding: 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; background-color: #f1f5f9; }
+    
+    .msg { max-width: 82%; padding: 0.85rem 1.1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.45; word-wrap: break-word; }
+    .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg.bot { background: white; color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+    .msg.system-error { background: #fee2e2; color: #991b1b; align-self: center; max-width: 95%; text-align: center; border: 1px solid #f87171; }
+    
+    .source-link { display: inline-block; margin-top: 0.6rem; font-size: 0.8rem; color: var(--primary); font-weight: 600; text-decoration: underline; }
+
+    .chat-footer { padding: 1rem; background: white; border-top: 1px solid #e2e8f0; }
+    .chat-form { display: flex; gap: 0.5rem; }
+    .chat-input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; outline: none; transition: border 0.2s; }
+    .chat-input:focus { border-color: var(--primary); }
+    .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .send-btn:hover { background: var(--primary-dark); }
+    .send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    footer { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid #e2e8f0; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">ETPC</div>
+    <nav>
+      <a href="https://www.etpc.pt" target="_blank">Site Oficial</a>
+    </nav>
+  </header>
+
+  <main class="hero-container">
+    <section class="info-section">
+      <h1>Bem-vindo à Escola Profissional de Carvalhos</h1>
+      <p>Formamos profissionais qualificados para o mercado de trabalho com cursos focados na componente prática e na inovação tecnológica.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Cursos Profissionais</h3>
+          <p>Nível 4 de qualificação com equivalência ao 12º ano.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Estágios (FCT)</h3>
+          <p>Formação em contexto de trabalho em empresas parceiras.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chat-wrapper">
+      <div class="chat-header">
+        <h2>Assistente Virtual ETPC</h2>
+        <span class="chat-status">IA Ativa</span>
+      </div>
+      <div class="chat-body" id="chatContainer">
+        <div class="msg bot">
+          Olá! Sou o assistente inteligente da ETPC. Coloque a sua questão sobre cursos, contactos ou candidaturas.
+        </div>
+      </div>
+      <div class="chat-footer">
+        <form class="chat-form" id="chatForm">
+          <input type="text" id="userInput" class="chat-input" placeholder="Ex.: Quais são os contactos da escola?" autocomplete="off" required>
+          <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; ETPC - Projeto de Assistente Virtual com Inteligência Artificial.</p>
+  </footer>
+
+  <script>
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const chatContainer = document.getElementById('chatContainer');
+    const sendBtn = document.getElementById('sendBtn');
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      userInput.value = '';
+      setLoading(true);
+
+      const loadingElem = appendMessage('A pesquisar no site da ETPC...', 'bot');
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: text })
+        });
+
+        const data = await response.json();
+        loadingElem.remove();
+
+        if (response.ok) {
+          let replyHTML = escapeHTML(data.reply).replace(/\n/g, '<br>');
+          if (data.sourceUrl) {
+            replyHTML += `<br><a href="${data.sourceUrl}" target="_blank" class="source-link">Consultar fonte no site oficial</a>`;
+          }
+          appendMessage(replyHTML, 'bot', true);
+        } else {
+          appendMessage(data.reply || 'Ocorreu um erro ao processar o seu pedido.', 'system-error');
+        }
+
+      } catch (err) {
+        if (loadingElem) loadingElem.remove();
+        appendMessage('O assistente está temporariamente indisponível. Por favor, verifique a sua ligação.', 'system-error');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    function appendMessage(content, type, isHTML = false) {
+      const div = document.createElement('div');
+      div.classList.add('msg', type);
+      if (isHTML) {
+        div.innerHTML = content;
+      } else {
+        div.textContent = content;
+      }
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return div;
+    }
+
+    function setLoading(isLoading) {
+      userInput.disabled = isLoading;
+      sendBtn.disabled = isLoading;
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>
