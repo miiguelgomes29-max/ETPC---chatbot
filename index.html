@@ -4,72 +4,122 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ETPC - Assistente Virtual Inteligente</title>
+  
+  <!-- Supabase via CDN (Sem precisar de npm install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
-      --primary: #004488;
-      --secondary: #0066cc;
-      --bg: #f4f7f6;
-      --text: #333;
+      --primary: #0a4b88;
+      --primary-dark: #06335e;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
-    
-    header { background: var(--primary); color: white; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 1.4rem; }
-    
-    main { flex: 1; max-width: 1000px; width: 100%; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 768px) { main { grid-template-columns: 1fr; } }
-    
-    .hero { display: flex; flex-direction: column; justify-content: center; }
-    .hero h2 { color: var(--primary); font-size: 2rem; margin-bottom: 1rem; }
-    .hero p { line-height: 1.6; margin-bottom: 1rem; color: #555; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
 
-    .chat-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; height: 500px; overflow: hidden; border: 1px solid #e1e4e8; }
-    .chat-header { background: var(--secondary); color: white; padding: 1rem; text-align: center; font-weight: bold; }
-    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
-    
-    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; }
-    .msg.bot { background: #e9ecef; align-self: flex-start; border-bottom-left-radius: 2px; }
-    .msg.user { background: var(--secondary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .msg .source { display: inline-block; font-size: 0.8rem; margin-top: 0.5rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+    header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header .logo { font-size: 1.4rem; font-weight: bold; }
+    header nav a { color: white; text-decoration: none; font-weight: 500; }
 
-    .chat-input { display: flex; border-top: 1px solid #ddd; padding: 0.75rem; background: white; }
-    .chat-input input { flex: 1; border: 1px solid #ccc; padding: 0.75rem; border-radius: 6px; outline: none; font-size: 0.95rem; }
-    .chat-input button { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; margin-left: 0.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .chat-input button:hover { background: var(--secondary); }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; width: 100%; }
+    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+    .hero h1 { font-size: 2rem; color: var(--primary-dark); margin-bottom: 1rem; }
+    .hero p { color: var(--text-muted); margin-bottom: 1rem; }
+
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 500px; }
+    .chat-header { background: var(--primary); color: white; padding: 1rem; font-weight: bold; text-align: center; }
+
+    .chat-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f1f5f9; }
+    
+    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.4; }
+    .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg.bot { background: white; color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .msg.error { background: #fee2e2; color: #991b1b; align-self: center; text-align: center; width: 90%; }
+    
+    .source-link { display: inline-block; margin-top: 0.5rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+
+    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; }
+    .chat-form { display: flex; gap: 0.5rem; }
+    .chat-input { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+    .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>ETPC Assistant</h1>
-    <span>Escola Profissional de Carvalhos</span>
+    <div class="logo">ETPC Assistant</div>
+    <nav><a href="https://www.etpc.pt" target="_blank">Site Oficial ETPC</a></nav>
   </header>
 
-  <main>
+  <main class="container">
     <section class="hero">
-      <h2>Descubra a ETPC</h2>
-      <p>Esclareça as suas dúvidas sobre a oferta formativa, localização, contactos e atividades através do nosso assistente de Inteligência Artificial.</p>
-      <p><small><em>Nota: Todas as respostas são extraídas exclusivamente do site oficial da ETPC.</em></small></p>
+      <h1>Assistente Virtual ETPC</h1>
+      <p>Esclareça as suas dúvidas sobre os cursos disponíveis, processo de candidatura, contactos e localização da Escola Profissional de Carvalhos.</p>
+      <p><small><em>Respostas fundamentadas exclusivamente no website oficial da escola.</em></small></p>
     </section>
 
-    <section class="chat-card">
-      <div class="chat-header">Assistente Virtual ETPC</div>
-      <div class="chat-messages" id="chatBox">
-        <div class="msg bot">Olá! Sou o assistente virtual da ETPC. Em que posso ajudar hoje?</div>
+    <section class="chat-wrapper">
+      <div class="chat-header">Conversa com a IA</div>
+      <div class="chat-body" id="chatContainer">
+        <div class="msg bot">Olá! Sou o assistente virtual da ETPC. Como posso ajudar?</div>
       </div>
-      <form class="chat-input" id="chatForm">
-        <input type="text" id="userInput" placeholder="Ex: Quais são os contactos da escola?" required autocomplete="off">
-        <button type="submit">Enviar</button>
-      </form>
+      <div class="chat-footer">
+        <form class="chat-form" id="chatForm">
+          <input type="text" id="userInput" class="chat-input" placeholder="Ex: Quais são os cursos da escola?" autocomplete="off" required>
+          <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
+        </form>
+      </div>
     </section>
   </main>
 
   <script>
+    // -------------------------------------------------------------
+    // CONFIGURAÇÕES (Substitui com os teus dados reais)
+    // -------------------------------------------------------------
+    const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
+    const SUPABASE_KEY = "SUA_CHAVE_ANON_PUBLIC_SUPABASE";
+    const GEMINI_API_KEY = "SUA_CHAVE_API_GEMINI";
+
+    // Inicializar Supabase
+    const { createClient } = window.supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const chatForm = document.getElementById('chatForm');
     const userInput = document.getElementById('userInput');
-    const chatBox = document.getElementById('chatBox');
+    const chatContainer = document.getElementById('chatContainer');
+    const sendBtn = document.getElementById('sendBtn');
 
+    // 1. Função para procurar informação no Supabase
+    async function searchKnowledge(query) {
+      try {
+        const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+        if (words.length === 0) return { context: "", url: null };
+
+        const { data, error } = await supabaseClient
+          .from('etpc_knowledge')
+          .select('*')
+          .ilike('conteudo', `%${words[0]}%`)
+          .limit(2);
+
+        if (error || !data || data.length === 0) {
+          return { context: "Nenhuma informação relevante encontrada no site da ETPC.", url: null };
+        }
+
+        const contextText = data.map(doc => `[FONTE: ${doc.url}]\n${doc.conteudo}`).join('\n\n');
+        return { context: contextText, url: data[0].url };
+      } catch (err) {
+        console.error("Erro na busca:", err);
+        return { context: "Erro a aceder à base de dados.", url: null };
+      }
+    }
+
+    // 2. Processar envio da mensagem
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const question = userInput.value.trim();
@@ -77,40 +127,74 @@
 
       appendMessage(question, 'user');
       userInput.value = '';
+      setLoading(true);
 
       const loadingMsg = appendMessage('A consultar o site da ETPC...', 'bot');
 
+      // Buscar contexto no Supabase
+      const { context, url } = await searchKnowledge(question);
+
+      // System Prompt
+      const systemPrompt = `És o assistente virtual oficial da ETPC (Escola Profissional de Carvalhos).
+
+REGRAS OBRIGATÓRIAS:
+1. Responde APENAS utilizando a informação presente no [CONTEXTO ETPC] abaixo.
+2. Se a informação NÃO constar no contexto, responde exatamente: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão."
+3. Recusa educadamente responder a perguntas sobre assuntos sem relação com a ETPC (ex: futebol, receitas, política).
+4. NUNCA inventes dados.
+
+[CONTEXTO ETPC]:
+${context}
+
+[PERGUNTA DO UTILIZADOR]:
+${question}`;
+
       try {
-        const res = await fetch('/api/chat', {
+        // Chamada direta à API do Gemini
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt }] }]
+          })
         });
-        const data = await res.json();
-        
+
         loadingMsg.remove();
-        
-        let content = data.reply;
-        if (data.sourceUrl) {
-          content += `<br><a href="${data.sourceUrl}" target="_blank" class="source">Ver página original</a>`;
+
+        if (!response.ok) throw new Error("Falha na chamada à IA");
+
+        const data = await response.json();
+        const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro ao gerar resposta.";
+
+        let fullReply = replyText.replace(/\n/g, '<br>');
+        if (url && !replyText.includes("Lamento")) {
+          fullReply += `<br><a href="${url}" target="_blank" class="source-link">Ver página original no site da ETPC</a>`;
         }
-        appendMessage(content, 'bot', true);
+
+        appendMessage(fullReply, 'bot', true);
+
       } catch (err) {
-        loadingMsg.remove();
-        appendMessage('O assistente está temporariamente indisponível. Por favor, tente novamente mais tarde.', 'bot');
+        if (loadingMsg) loadingMsg.remove();
+        appendMessage('O assistente está temporariamente indisponível. Por favor, tente novamente mais tarde.', 'error');
+      } finally {
+        setLoading(false);
       }
     });
 
-    function appendMessage(text, sender, isHTML = false) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('msg', sender);
-      if (isHTML) msgDiv.innerHTML = text;
-      else msgDiv.textContent = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msgDiv;
+    function appendMessage(text, type, isHTML = false) {
+      const div = document.createElement('div');
+      div.classList.add('msg', type);
+      if (isHTML) div.innerHTML = text;
+      else div.textContent = text;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return div;
+    }
+
+    function setLoading(isLoading) {
+      userInput.disabled = isLoading;
+      sendBtn.disabled = isLoading;
     }
   </script>
-
 </body>
 </html>
