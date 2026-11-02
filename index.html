@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETPC - Assistente Virtual Inteligente</title>
+  <style>
+    :root {
+      --primary: #004488;
+      --secondary: #0066cc;
+      --bg: #f4f7f6;
+      --text: #333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+    
+    header { background: var(--primary); color: white; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.4rem; }
+    
+    main { flex: 1; max-width: 1000px; width: 100%; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 768px) { main { grid-template-columns: 1fr; } }
+    
+    .hero { display: flex; flex-direction: column; justify-content: center; }
+    .hero h2 { color: var(--primary); font-size: 2rem; margin-bottom: 1rem; }
+    .hero p { line-height: 1.6; margin-bottom: 1rem; color: #555; }
+
+    .chat-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; height: 500px; overflow: hidden; border: 1px solid #e1e4e8; }
+    .chat-header { background: var(--secondary); color: white; padding: 1rem; text-align: center; font-weight: bold; }
+    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+    
+    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; }
+    .msg.bot { background: #e9ecef; align-self: flex-start; border-bottom-left-radius: 2px; }
+    .msg.user { background: var(--secondary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg .source { display: inline-block; font-size: 0.8rem; margin-top: 0.5rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+
+    .chat-input { display: flex; border-top: 1px solid #ddd; padding: 0.75rem; background: white; }
+    .chat-input input { flex: 1; border: 1px solid #ccc; padding: 0.75rem; border-radius: 6px; outline: none; font-size: 0.95rem; }
+    .chat-input button { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; margin-left: 0.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .chat-input button:hover { background: var(--secondary); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ETPC Assistant</h1>
+    <span>Escola Profissional de Carvalhos</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Descubra a ETPC</h2>
+      <p>Esclareça as suas dúvidas sobre a oferta formativa, localização, contactos e atividades através do nosso assistente de Inteligência Artificial.</p>
+      <p><small><em>Nota: Todas as respostas são extraídas exclusivamente do site oficial da ETPC.</em></small></p>
+    </section>
+
+    <section class="chat-card">
+      <div class="chat-header">Assistente Virtual ETPC</div>
+      <div class="chat-messages" id="chatBox">
+        <div class="msg bot">Olá! Sou o assistente virtual da ETPC. Em que posso ajudar hoje?</div>
+      </div>
+      <form class="chat-input" id="chatForm">
+        <input type="text" id="userInput" placeholder="Ex: Quais são os contactos da escola?" required autocomplete="off">
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = userInput.value.trim();
+      if (!question) return;
+
+      appendMessage(question, 'user');
+      userInput.value = '';
+
+      const loadingMsg = appendMessage('A consultar o site da ETPC...', 'bot');
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+        const data = await res.json();
+        
+        loadingMsg.remove();
+        
+        let content = data.reply;
+        if (data.sourceUrl) {
+          content += `<br><a href="${data.sourceUrl}" target="_blank" class="source">Ver página original</a>`;
+        }
+        appendMessage(content, 'bot', true);
+      } catch (err) {
+        loadingMsg.remove();
+        appendMessage('O assistente está temporariamente indisponível. Por favor, tente novamente mais tarde.', 'bot');
+      }
+    });
+
+    function appendMessage(text, sender, isHTML = false) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('msg', sender);
+      if (isHTML) msgDiv.innerHTML = text;
+      else msgDiv.textContent = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return msgDiv;
+    }
+  </script>
+
+</body>
+</html>
