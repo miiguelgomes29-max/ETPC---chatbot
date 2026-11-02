@@ -1,32 +1,46 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Carregar a base de conhecimento local da ETPC
-const knowledgeBase = JSON.parse(fs.readFileSync(path.join(__dirname, 'knowledge.json'), 'utf8'));
+// Inicializar cliente do Supabase com Variáveis de Ambiente
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Função para filtrar conteúdos relevantes da base de dados (Simple RAG)
-function getRelevantContext(query) {
-  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-  let results = [];
+// Função para consultar o Supabase com base na pergunta
+async function getRelevantContextFromSupabase(query) {
+  try {
+    // Pesquisa simples por palavras-chave na coluna conteudo e titulo
+    const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    const searchTerm = words.join(' & ');
 
-  knowledgeBase.forEach(item => {
-    const textToSearch = (item.titulo + " " + item.conteudo + " " + item.categoria).toLowerCase();
-    let score = 0;
-    words.forEach(word => {
-      if (textToSearch.includes(word)) score += 1;
-    });
-    if (score > 0) {
-      results.push({ item, score });
+    // 1. Tentar pesquisa por Full-Text Search do PostgreSQL
+    let { data, error } = await supabase
+      .from('etpc_knowledge')
+      .select('*')
+      .textSearch('conteudo', `'${searchTerm}'`, { config: 'portuguese' })
+      .limit(2);
+
+    // 2. Se não encontrar resultados, faz uma busca por ILIKE simples
+    if ((!data || data.length === 0) && words.length > 0) {
+      const { data: fallbackData } = await supabase
+        .from('etpc_knowledge')
+        .select('*')
+        .ilike('conteudo', `%${words[0]}%`)
+        .limit(2);
+      
+      data = fallbackData;
     }
-  });
 
-  results.sort((a, b) => b.score - a.score);
-  return results.slice(0, 2).map(r => r.item);
+    return data || [];
+  } catch (err) {
+    console.error("Erro ao consultar o Supabase:", err);
+    return [];
+  }
 }
 
 // Endpoint do Chatbot
@@ -34,19 +48,16 @@ app.post('/api/chat', async (req, res) => {
   const { question } = req.body;
 
   if (!question) {
-    return res.status(400).json({ error: 'A pergunta não pode estar vazia.' });
+    return res.status(400).json({ reply: 'A pergunta não pode estar vazia.' });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ 
-      reply: 'Erro de configuração no servidor: Chave da API da IA não encontrada.',
-      sourceUrl: null 
-    });
+    return res.status(500).json({ reply: 'Erro de configuração: Chave da API Gemini não definida.' });
   }
 
-  // 1. Pesquisar informação na base de dados
-  const matchedDocs = getRelevantContext(question);
+  // Buscar dados no Supabase
+  const matchedDocs = await getRelevantContextFromSupabase(question);
 
   let contextText = "";
   let primaryUrl = null;
@@ -58,25 +69,22 @@ app.post('/api/chat', async (req, res) => {
     contextText = "Nenhuma informação relevante encontrada no site da ETPC.";
   }
 
-  // 2. Construir o System Prompt com regras rigorosas
+  // System Prompt estrito
   const systemPrompt = `És o assistente virtual oficial da ETPC (Escola Profissional de Carvalhos). 
-A tua missão é responder a perguntas de alunos, encarregados de educação e visitantes.
 
 REGRAS OBRIGATÓRIAS:
-1. Responde APENAS utilizando a informação explicitamente presente no [CONTEXTO ETPC] abaixo.
-2. Se a informação NÃO constar no contexto ou for insuficiente, responde exatamente: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão."
-3. Se o utilizador perguntar sobre assuntos gerais (ex: futebol, receitas de cozinha, política, jogos, notícias globais), recusa educadamente indicando que apenas podes prestar informações sobre a ETPC.
-4. NUNCA inventes dados, prazos, contactos ou cursos que não estejam expressamente escritos no contexto.
-5. Mantém um tom profissional, cordial e objetivo em português de Portugal.
+1. Responde APENAS utilizando a informação presente no [CONTEXTO ETPC] abaixo.
+2. Se a informação NÃO constar no contexto, responde exatamente: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão."
+3. Recusa educadamente responder a perguntas sobre assuntos sem relação com a ETPC (ex: futebol, receitas, política).
+4. NUNCA inventes factos ou dados.
 
 [CONTEXTO ETPC]:
 ${contextText}
 
-[PERGUNTA DO UTILIZADOR]:
+[PERGUNTA]:
 ${question}`;
 
   try {
-    // 3. Chamada à API da IA (Google Gemini REST API)
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,12 +93,10 @@ ${question}`;
       })
     });
 
-    if (!response.ok) {
-      throw new Error(`Erro na API Gemini: ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`Status ${response.status}`);
 
     const data = await response.json();
-    const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar uma resposta válida.";
+    const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro ao processar resposta.";
 
     return res.json({
       reply: botReply,
@@ -98,15 +104,13 @@ ${question}`;
     });
 
   } catch (error) {
-    console.error("Erro na comunicação com a IA:", error);
+    console.error("Erro na API da IA:", error);
     return res.status(503).json({
-      reply: "O assistente está temporariamente indisponível devido a uma falha de comunicação. Por favor, tente novamente mais tarde.",
+      reply: "O assistente está temporariamente indisponível. Por favor, tente mais tarde.",
       sourceUrl: null
     });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor a executar em http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor a correr na porta ${PORT}`));
