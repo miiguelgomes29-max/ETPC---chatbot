@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ETPC - Assistente Virtual Inteligente</title>
   
-  <!-- Supabase via CDN (Sem precisar de npm install) -->
+  <!-- Supabase via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -79,12 +79,12 @@
   </main>
 
   <script>
-// -------------------------------------------------------------
+    // -------------------------------------------------------------
     // CONFIGURAÇÕES
     // -------------------------------------------------------------
-    const SUPABASE_URL = "https://supabase.com/dashboard/project/fjqycwjqtcklgyamsfrm"; // O URL do teu projeto Supabase
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8";  
-    const GROQ_API_KEY =  "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";          // A tua chave copiada da Groq
+    const SUPABASE_URL = "https://fjqycwjqtcklgyamsfrm.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8"; 
+    const GROQ_API_KEY = "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"; 
 
     const { createClient } = window.supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -141,7 +141,6 @@ REGRAS OBRIGATÓRIAS:
 ${context}`;
 
       try {
-        // Chamada à API da Groq (Modelo Llama 3)
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
