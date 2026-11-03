@@ -80,7 +80,7 @@
 
   <script>
     // -------------------------------------------------------------
-    // CONFIGURAÇÕES
+    // CONFIGURAÇÕES DAS APIS
     // -------------------------------------------------------------
     const SUPABASE_URL = "https://fjqycwjqtcklgyamsfrm.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8"; 
@@ -94,6 +94,7 @@
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
+    // Pesquisar artigos relevantes na tabela etpc_knowledge
     async function searchKnowledge(query) {
       try {
         const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
@@ -160,9 +161,7 @@ ${context}`;
         loadingMsg.remove();
 
         if (!response.ok) {
-          const errData = await response.json();
-          console.error("Erro Groq:", errData);
-          throw new Error("Erro na chamada à IA");
+          throw new Error("Erro na comunicação com a IA");
         }
 
         const data = await response.json();
