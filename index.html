@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETPC - Base de Conhecimento</title>
+  <title>ETPC - Escola Técnico-Profissional de Cantanhede</title>
   
   <!-- Supabase via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,10 +28,10 @@
     .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; width: 100%; }
     @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
-    .hero h1 { font-size: 2rem; color: var(--primary-dark); margin-bottom: 1rem; }
+    .hero h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 1rem; }
     .hero p { color: var(--text-muted); margin-bottom: 1rem; }
 
-    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 560px; }
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 580px; }
     .chat-header { background: var(--primary); color: white; padding: 1rem; font-weight: bold; text-align: center; }
 
     .chat-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f1f5f9; }
@@ -48,7 +48,6 @@
     .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
     .send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
-    /* Estilos dos Cartões de Opções */
     .cards-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .option-card {
       background: #f1f5f9;
@@ -72,15 +71,15 @@
 <body>
 
   <header>
-    <div class="logo">ETPC Assistant</div>
-    <nav><a href="https://www.etpc.pt" target="_blank">Site Oficial ETPC</a></nav>
+    <div class="logo">ETPC Cantanhede</div>
+    <nav><a href="https://etpc.pt/" target="_blank">Site Oficial ETPC</a></nav>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h1>Assistente Informativo ETPC</h1>
-      <p>Esclareça as suas dúvidas sobre os cursos disponíveis, processo de candidatura, contactos e localização da Escola Profissional de Carvalhos.</p>
-      <p><small><em>Selecione um dos tópicos abaixo para obter a resposta rápida.</em></small></p>
+      <h1>Escola Técnico-Profissional de Cantanhede</h1>
+      <p>Bem-vindo à base de conhecimento da ETPC. Consulte as informações oficiais sobre os nossos cursos, contactos, apoios e história.</p>
+      <p><small><em>Selecione uma das opções nos cartões abaixo.</em></small></p>
     </section>
 
     <section class="chat-wrapper">
@@ -94,13 +93,12 @@
           <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
         </form>
 
-        <!-- Cartões de opções -->
         <div class="cards-container">
-          <button type="button" class="option-card" onclick="selectOption('contactos', 'Quais são os contactos e a morada da escola?')">📞 Contactos e Morada</button>
-          <button type="button" class="option-card" onclick="selectOption('cursos', 'Quais são os cursos profissionais disponíveis?')">📚 Cursos Profissionais</button>
-          <button type="button" class="option-card" onclick="selectOption('candidaturas', 'Como funciona o processo de candidatura?')">📝 Candidaturas e Requisitos</button>
-          <button type="button" class="option-card" onclick="selectOption('estagios', 'Como funcionam os estágios (FCT)?')">💼 Estágios (FCT)</button>
-          <button type="button" class="option-card" onclick="selectOption('apoios', 'Quais são os apoios sociais e subsídios?')">💶 Apoios e Subsídios</button>
+          <button type="button" class="option-card" onclick="selectOption('contactos', 'Quais são os contactos e morada da ETPC Cantanhede?')">📞 Contactos e Morada</button>
+          <button type="button" class="option-card" onclick="selectOption('cursos', 'Quais são os cursos profissionais de Nível 4?')">📚 Cursos Profissionais</button>
+          <button type="button" class="option-card" onclick="selectOption('cef-adultos', 'Quais são os cursos CEF e formação de adultos?')">🎓 Cursos CEF e Adultos</button>
+          <button type="button" class="option-card" onclick="selectOption('destaques', 'Quais são as principais informações sobre a escola?')">⭐ Sobre a ETPC</button>
+          <button type="button" class="option-card" onclick="selectOption('apoios', 'Como funcionam os gabinetes e inscrições?')">ℹ️ Gabinetes e Inscrições</button>
         </div>
       </div>
     </section>
@@ -118,7 +116,6 @@
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
-    // Resposta automática para mensagens escritas manualmente
     chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const question = userInput.value.trim();
@@ -132,7 +129,6 @@
       }, 300);
     });
 
-    // Função ativada ao clicar num cartão
     async function selectOption(slugKey, textPrompt) {
       appendMessage(textPrompt, 'user');
       setLoading(true);
