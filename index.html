@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETPC - Assistente Virtual Inteligente</title>
+  <title>ETPC - Assistente de Informação</title>
   
   <!-- Supabase via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -39,9 +39,8 @@
     .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.4; }
     .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
     .msg.bot { background: white; color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .msg.error { background: #fee2e2; color: #991b1b; align-self: center; text-align: center; width: 90%; }
     
-    .source-link { display: inline-block; margin-top: 0.5rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+    .source-link { display: inline-block; margin-top: 0.75rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
 
     .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; }
     .chat-form { display: flex; gap: 0.5rem; }
@@ -59,19 +58,19 @@
 
   <main class="container">
     <section class="hero">
-      <h1>Assistente Virtual ETPC</h1>
-      <p>Esclareça as suas dúvidas sobre os cursos disponíveis, processo de candidatura, contactos e localização da Escola Profissional de Carvalhos.</p>
-      <p><small><em>Respostas fundamentadas exclusivamente no website oficial da escola.</em></small></p>
+      <h1>Assistente Informativo ETPC</h1>
+      <p>Esclareça as suas dúvidas sobre cursos disponíveis, candidaturas, contactos, apoios e localização da Escola Profissional de Carvalhos.</p>
+      <p><small><em>Consulta direta na base de dados oficial.</em></small></p>
     </section>
 
     <section class="chat-wrapper">
-      <div class="chat-header">Conversa com a IA</div>
+      <div class="chat-header">Base de Conhecimento ETPC</div>
       <div class="chat-body" id="chatContainer">
-        <div class="msg bot">Olá! Sou o assistente virtual da ETPC. Como posso ajudar?</div>
+        <div class="msg bot">Olá! Em que posso ajudar? Experimente perguntar por "cursos", "contactos", "candidaturas", "estágios" ou "apoios".</div>
       </div>
       <div class="chat-footer">
         <form class="chat-form" id="chatForm">
-          <input type="text" id="userInput" class="chat-input" placeholder="Ex: Quais são os cursos da escola?" autocomplete="off" required>
+          <input type="text" id="userInput" class="chat-input" placeholder="Ex: Quais são os contactos da escola?" autocomplete="off" required>
           <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
         </form>
       </div>
@@ -79,12 +78,9 @@
   </main>
 
   <script>
-    // -------------------------------------------------------------
-    // CONFIGURAÇÕES DAS APIS
-    // -------------------------------------------------------------
+    // Configurações do Supabase
     const SUPABASE_URL = "https://fjqycwjqtcklgyamsfrm.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8"; 
-    const GROQ_API_KEY = "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"; 
 
     const { createClient } = window.supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -94,27 +90,28 @@
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
-    // Pesquisar artigos relevantes na tabela etpc_knowledge
-    async function searchKnowledge(query) {
+    // Pesquisa direta no Supabase comparando os termos da pesquisa com palavras_chave, titulo e conteudo
+    async function queryDatabase(userQuery) {
       try {
-        const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-        if (words.length === 0) return { context: "Nenhuma informação relevante encontrada.", url: null };
+        const terms = userQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+        if (terms.length === 0) return null;
 
-        const { data, error } = await supabaseClient
-          .from('etpc_knowledge')
-          .select('*')
-          .ilike('conteudo', `%${words[0]}%`)
-          .limit(2);
+        // Tentar encontrar correspondência por qualquer palavra relevante inserida
+        for (const word of terms) {
+          const { data, error } = await supabaseClient
+            .from('etpc_knowledge')
+            .select('*')
+            .or(`palavras_chave.ilike.%${word}%,titulo.ilike.%${word}%,conteudo.ilike.%${word}%`)
+            .limit(1);
 
-        if (error || !data || data.length === 0) {
-          return { context: "Nenhuma informação relevante encontrada no site da ETPC.", url: null };
+          if (!error && data && data.length > 0) {
+            return data[0];
+          }
         }
-
-        const contextText = data.map(doc => `[FONTE: ${doc.url}]\n${doc.conteudo}`).join('\n\n');
-        return { context: contextText, url: data[0].url };
+        return null;
       } catch (err) {
-        console.error("Erro Supabase:", err);
-        return { context: "Nenhuma informação relevante encontrada no site da ETPC.", url: null };
+        console.error("Erro no Supabase:", err);
+        return null;
       }
     }
 
@@ -127,60 +124,22 @@
       userInput.value = '';
       setLoading(true);
 
-      const loadingMsg = appendMessage('A consultar o site da ETPC...', 'bot');
+      const loadingMsg = appendMessage('A pesquisar na base de dados...', 'bot');
 
-      const { context, url } = await searchKnowledge(question);
+      const match = await queryDatabase(question);
+      loadingMsg.remove();
 
-      const systemPrompt = `És o assistente virtual oficial da ETPC (Escola Profissional de Carvalhos).
-
-REGRAS OBRIGATÓRIAS:
-1. Responde APENAS utilizando a informação presente no [CONTEXTO ETPC] abaixo.
-2. Se a informação NÃO constar no contexto, responde exatamente: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão."
-3. Recusa educadamente responder a perguntas sobre assuntos sem relação com a ETPC (ex: futebol, receitas, política).
-4. NUNCA inventes dados.
-
-[CONTEXTO ETPC]:
-${context}`;
-
-      try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${GROQ_API_KEY}`
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: question }
-            ]
-          })
-        });
-
-        loadingMsg.remove();
-
-        if (!response.ok) {
-          throw new Error("Erro na comunicação com a IA");
+      if (match) {
+        let reply = `<strong>${match.titulo}</strong><br><br>${match.conteudo}`;
+        if (match.url) {
+          reply += `<br><a href="${match.url}" target="_blank" class="source-link">Ver página oficial no site da ETPC</a>`;
         }
-
-        const data = await response.json();
-        const replyText = data.choices[0]?.message?.content || "Erro ao gerar resposta.";
-
-        let fullReply = replyText.replace(/\n/g, '<br>');
-        if (url && !replyText.includes("Lamento")) {
-          fullReply += `<br><a href="${url}" target="_blank" class="source-link">Ver página original no site da ETPC</a>`;
-        }
-
-        appendMessage(fullReply, 'bot', true);
-
-      } catch (err) {
-        console.error("Erro no envio:", err);
-        if (loadingMsg) loadingMsg.remove();
-        appendMessage('O assistente está temporariamente indisponível. Por favor, tente novamente mais tarde.', 'error');
-      } finally {
-        setLoading(false);
+        appendMessage(reply, 'bot', true);
+      } else {
+        appendMessage("Lamento, mas não encontrei informação correspondente na base de dados da ETPC. Tente utilizar palavras como 'cursos', 'contactos', 'candidaturas' ou 'apoios'.", 'bot');
       }
+
+      setLoading(false);
     });
 
     function appendMessage(text, type, isHTML = false) {
