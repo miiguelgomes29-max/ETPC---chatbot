@@ -6,7 +6,7 @@
   <title>ETPC - Base de Conhecimento</title>
   
   <!-- Supabase via CDN -->
-  <script src="https://supabase.com/dashboard/project/fjqycwjqtcklgyamsfrm"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -31,7 +31,7 @@
     .hero h1 { font-size: 2rem; color: var(--primary-dark); margin-bottom: 1rem; }
     .hero p { color: var(--text-muted); margin-bottom: 1rem; }
 
-    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 500px; }
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 560px; }
     .chat-header { background: var(--primary); color: white; padding: 1rem; font-weight: bold; text-align: center; }
 
     .chat-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f1f5f9; }
@@ -42,11 +42,31 @@
     
     .source-link { display: inline-block; margin-top: 0.75rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
 
-    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; }
+    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 0.75rem; }
     .chat-form { display: flex; gap: 0.5rem; }
     .chat-input { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
     .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
     .send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    /* Estilos dos Cartões de Opções */
+    .cards-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .option-card {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: var(--primary-dark);
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .option-card:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -59,20 +79,29 @@
   <main class="container">
     <section class="hero">
       <h1>Assistente Informativo ETPC</h1>
-      <p>Esclareça as suas dúvidas sobre cursos disponíveis, candidaturas, contactos, apoios e localização da Escola Profissional de Carvalhos.</p>
-      <p><small><em>Consulta direta na base de dados oficial.</em></small></p>
+      <p>Esclareça as suas dúvidas sobre os cursos disponíveis, processo de candidatura, contactos e localização da Escola Profissional de Carvalhos.</p>
+      <p><small><em>Selecione um dos tópicos abaixo para obter a resposta rápida.</em></small></p>
     </section>
 
     <section class="chat-wrapper">
       <div class="chat-header">Base de Conhecimento ETPC</div>
       <div class="chat-body" id="chatContainer">
-        <div class="msg bot">Olá! Em que posso ajudar? Experimente perguntar por "cursos", "contactos", "candidaturas", "estágios" ou "apoios".</div>
+        <div class="msg bot">Olá! Clica num dos cartões abaixo da caixa de texto para consultar as informações da escola.</div>
       </div>
       <div class="chat-footer">
         <form class="chat-form" id="chatForm">
-          <input type="text" id="userInput" class="chat-input" placeholder="Ex: Quais são os contactos da escola?" autocomplete="off" required>
+          <input type="text" id="userInput" class="chat-input" placeholder="Escreva aqui..." autocomplete="off">
           <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
         </form>
+
+        <!-- Cartões de opções -->
+        <div class="cards-container">
+          <button type="button" class="option-card" onclick="selectOption('contactos', 'Quais são os contactos e a morada da escola?')">📞 Contactos e Morada</button>
+          <button type="button" class="option-card" onclick="selectOption('cursos', 'Quais são os cursos profissionais disponíveis?')">📚 Cursos Profissionais</button>
+          <button type="button" class="option-card" onclick="selectOption('candidaturas', 'Como funciona o processo de candidatura?')">📝 Candidaturas e Requisitos</button>
+          <button type="button" class="option-card" onclick="selectOption('estagios', 'Como funcionam os estágios (FCT)?')">💼 Estágios (FCT)</button>
+          <button type="button" class="option-card" onclick="selectOption('apoios', 'Quais são os apoios sociais e subsídios?')">💶 Apoios e Subsídios</button>
+        </div>
       </div>
     </section>
   </main>
@@ -89,55 +118,55 @@
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
-    async function queryDatabase(userQuery) {
-      try {
-        const terms = userQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-        if (terms.length === 0) return null;
-
-        for (const word of terms) {
-          const { data, error } = await supabaseClient
-            .from('etpc_knowledge')
-            .select('*')
-            .or(`palavras_chave.ilike.%${word}%,titulo.ilike.%${word}%,conteudo.ilike.%${word}%`)
-            .limit(1);
-
-          if (!error && data && data.length > 0) {
-            return data[0];
-          }
-        }
-        return null;
-      } catch (err) {
-        console.error("Erro no Supabase:", err);
-        return null;
-      }
-    }
-
-    chatForm.addEventListener('submit', async (e) => {
+    // Resposta automática para mensagens escritas manualmente
+    chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const question = userInput.value.trim();
       if (!question) return;
 
       appendMessage(question, 'user');
       userInput.value = '';
+
+      setTimeout(() => {
+        appendMessage("Olá 👋, usa as frases nos cardes em baixo da caixa de texto 😁", 'bot');
+      }, 300);
+    });
+
+    // Função ativada ao clicar num cartão
+    async function selectOption(slugKey, textPrompt) {
+      appendMessage(textPrompt, 'user');
       setLoading(true);
 
-      const loadingMsg = appendMessage('A pesquisar na base de dados...', 'bot');
+      const loadingMsg = appendMessage('A consultar a base de dados...', 'bot');
 
-      const match = await queryDatabase(question);
-      loadingMsg.remove();
+      try {
+        const { data, error } = await supabaseClient
+          .from('etpc_knowledge')
+          .select('*')
+          .eq('slug', slugKey)
+          .limit(1);
 
-      if (match) {
+        loadingMsg.remove();
+
+        if (error || !data || data.length === 0) {
+          appendMessage("Lamento, não foi possível encontrar essa informação de momento.", 'bot');
+          return;
+        }
+
+        const match = data[0];
         let reply = `<strong>${match.titulo}</strong><br><br>${match.conteudo}`;
         if (match.url) {
           reply += `<br><a href="${match.url}" target="_blank" class="source-link">Ver página oficial no site da ETPC</a>`;
         }
         appendMessage(reply, 'bot', true);
-      } else {
-        appendMessage("Lamento, mas não encontrei informação correspondente na base de dados da ETPC. Tente utilizar palavras como 'cursos', 'contactos', 'candidaturas' ou 'apoios'.", 'bot');
-      }
 
-      setLoading(false);
-    });
+      } catch (err) {
+        if (loadingMsg) loadingMsg.remove();
+        appendMessage("Erro na ligação à base de dados.", 'bot');
+      } finally {
+        setLoading(false);
+      }
+    }
 
     function appendMessage(text, type, isHTML = false) {
       const div = document.createElement('div');
