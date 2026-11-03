@@ -97,7 +97,7 @@
     async function searchKnowledge(query) {
       try {
         const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-        if (words.length === 0) return { context: "", url: null };
+        if (words.length === 0) return { context: "Nenhuma informação relevante encontrada.", url: null };
 
         const { data, error } = await supabaseClient
           .from('etpc_knowledge')
@@ -112,7 +112,8 @@
         const contextText = data.map(doc => `[FONTE: ${doc.url}]\n${doc.conteudo}`).join('\n\n');
         return { context: contextText, url: data[0].url };
       } catch (err) {
-        return { context: "Erro a aceder à base de dados.", url: null };
+        console.error("Erro Supabase:", err);
+        return { context: "Nenhuma informação relevante encontrada no site da ETPC.", url: null };
       }
     }
 
@@ -158,7 +159,11 @@ ${context}`;
 
         loadingMsg.remove();
 
-        if (!response.ok) throw new Error("Erro na comunicação com a IA");
+        if (!response.ok) {
+          const errData = await response.json();
+          console.error("Erro Groq:", errData);
+          throw new Error("Erro na chamada à IA");
+        }
 
         const data = await response.json();
         const replyText = data.choices[0]?.message?.content || "Erro ao gerar resposta.";
@@ -171,6 +176,7 @@ ${context}`;
         appendMessage(fullReply, 'bot', true);
 
       } catch (err) {
+        console.error("Erro no envio:", err);
         if (loadingMsg) loadingMsg.remove();
         appendMessage('O assistente está temporariamente indisponível. Por favor, tente novamente mais tarde.', 'error');
       } finally {
