@@ -78,7 +78,6 @@
   </main>
 
   <script>
-    // Configurações do Supabase
     const SUPABASE_URL = "https://fjqycwjqtcklgyamsfrm.supabase.co"; 
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8"; 
 
@@ -90,13 +89,11 @@
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
-    // Pesquisa direta no Supabase comparando os termos da pesquisa com palavras_chave, titulo e conteudo
     async function queryDatabase(userQuery) {
       try {
         const terms = userQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2);
         if (terms.length === 0) return null;
 
-        // Tentar encontrar correspondência por qualquer palavra relevante inserida
         for (const word of terms) {
           const { data, error } = await supabaseClient
             .from('etpc_knowledge')
