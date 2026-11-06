@@ -92,16 +92,14 @@
     const userInput = document.getElementById('userInput');
     const chatContainer = document.getElementById('chatContainer');
 
-    // Motor de processamento de linguagem natural local (Sem API)
     function processUserQuestion(questionText) {
-      // Normalização do texto (converte para minúsculas e remove acentos)
       const clean = questionText
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
-      // 1. Filtragem de Assuntos Exteriores (Futebol, Culinária, Política, etc.)
-      const offTopicKeywords = ["futebol", "receita", "bolo", "politica", "partido", "governo", "restaurante", "tempo amanha", "horoscopo", "piada", "fórmula 1"];
+      // 1. Filtragem de Assuntos Exteriores
+      const offTopicKeywords = ["futebol", "receita", "bolo", "politica", "partido", "governo", "restaurante", "tempo amanha", "horoscopo", "piada", "formula 1"];
       if (offTopicKeywords.some(kw => clean.includes(kw))) {
         return {
           answer: "Lamento, mas apenas posso responder a questões relacionadas com a Escola Técnico-Profissional de Cantanhede.",
@@ -120,18 +118,18 @@
         };
       }
 
-      // 3. Cursos Profissionais
-      if (clean.includes("curso") || clean.includes("oferta formativa") || clean.includes("nivel 4") || clean.includes("12 ano") || clean.includes("programacao") || clean.includes("software") || clean.includes("saude") || clean.includes("desporto") || clean.includes("estetica") || clean.includes("cozinha")) {
-        // Se a pergunta for especificamente sobre CEF
-        if (clean.includes("cef") || clean.includes("adulto")) {
-          return {
-            answer: "<strong>Cursos CEF e Formação de Adultos na ETPC:</strong><br><br>" +
-                    "• <strong>Cursos CEF (Tipo 3):</strong> CEF Cozinheiro e CEF Operador de Informática.<br>" +
-                    "• <strong>(Re)Qualificação de Adultos:</strong> Formação Modular Certificada.",
-            link: "https://etpc.pt/"
-          };
-        }
+      // 3. Cursos CEF e Adultos
+      if (clean.includes("cef") || clean.includes("adulto")) {
+        return {
+          answer: "<strong>Cursos CEF e Formação de Adultos na ETPC:</strong><br><br>" +
+                  "• <strong>Cursos CEF (Tipo 3):</strong> CEF Cozinheiro e CEF Operador de Informática.<br>" +
+                  "• <strong>(Re)Qualificação de Adultos:</strong> Formação Modular Certificada.",
+          link: "https://etpc.pt/"
+        };
+      }
 
+      // 4. Cursos Profissionais
+      if (clean.includes("curso") || clean.includes("oferta formativa") || clean.includes("nivel 4") || clean.includes("12 ano") || clean.includes("programacao") || clean.includes("software") || clean.includes("saude") || clean.includes("desporto") || clean.includes("estetica") || clean.includes("cozinha")) {
         return {
           answer: "<strong>Cursos Profissionais de Nível 4 (Equivalência ao 12º Ano):</strong><br><br>" +
                   "• Técnico/a de Desenvolvimento de Software<br>" +
@@ -150,7 +148,7 @@
         };
       }
 
-      // 4. Projetos, História, Erasmus e Reconhecimentos
+      // 5. Projetos, Erasmus e Destaques
       if (clean.includes("erasmus") || clean.includes("eco") || clean.includes("projeto") || clean.includes("atividade") || clean.includes("historia") || clean.includes("sobre") || clean.includes("cte") || clean.includes("prr") || clean.includes("empresa")) {
         return {
           answer: "<strong>Sobre a ETPC e Projetos em Destaque:</strong><br><br>" +
@@ -162,7 +160,7 @@
         };
       }
 
-      // 5. Candidaturas, Apoios e Gabinetes
+      // 6. Candidaturas, Apoios e Serviços
       if (clean.includes("inscri") || clean.includes("candidatur") || clean.includes("giaa") || clean.includes("apoio") || clean.includes("subsidio") || clean.includes("ecommunity") || clean.includes("manual")) {
         return {
           answer: "<strong>Inscrições e Serviços aos Alunos:</strong><br><br>" +
@@ -173,7 +171,7 @@
         };
       }
 
-      // 6. Tratamento de Perguntas sem informação suficiente no site da escola
+      // 7. Questões sem informação disponível
       return {
         answer: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão.",
         link: null
@@ -192,7 +190,6 @@
       appendMessage(question, 'user');
       userInput.value = '';
 
-      // Simular um pequeno tempo de resposta para fluidez visual
       setTimeout(() => {
         const result = processUserQuestion(question);
         let fullReply = result.answer;
