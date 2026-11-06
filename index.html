@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETPC - Assistente Virtual</title>
+  <title>ETPC - Base de Conhecimento Completa</title>
   
   <style>
     :root {
@@ -28,7 +28,7 @@
     .hero h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 0.75rem; }
     .hero p { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem; }
 
-    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 560px; }
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 600px; }
     .chat-header { background: var(--primary); color: white; padding: 0.9rem 1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .status-badge { background: #0284c7; color: white; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 12px; text-transform: uppercase; font-weight: 700; }
 
@@ -57,21 +57,21 @@
   <main class="container">
     <section class="hero">
       <h1>Escola Técnico-Profissional de Cantanhede</h1>
-      <p>Esclareça as suas dúvidas com o assistente virtual da ETPC sobre cursos, PAP, FCT (estágios), candidaturas, regulamentos e contactos.</p>
+      <p>Base de conhecimento integral: Localização, Cursos, PAP, Estágios (FCT), Candidaturas, Regulamentos, Projetos e Contactos.</p>
       <p><small><em>Respostas fundamentadas exclusivamente no website oficial da escola.</em></small></p>
     </section>
 
     <section class="chat-wrapper">
       <div class="chat-header">
         <span>Assistente ETPC</span>
-        <span class="status-badge">Base Local</span>
+        <span class="status-badge">Base Geral</span>
       </div>
       <div class="chat-body" id="chatContainer">
-        <div class="msg bot">Olá! Sou o assistente da ETPC Cantanhede. Em que posso ajudar hoje?</div>
+        <div class="msg bot">Olá! Sou o assistente virtual da ETPC Cantanhede. Faça a sua pergunta em linguagem natural.</div>
       </div>
       <div class="chat-footer">
         <form class="chat-form" id="chatForm">
-          <input type="text" id="userInput" class="chat-input" placeholder="Escreva a sua pergunta em linguagem natural..." autocomplete="off" required>
+          <input type="text" id="userInput" class="chat-input" placeholder="Pergunte sobre localização, cursos, PAP, FCT, contactos..." autocomplete="off" required>
           <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
         </form>
       </div>
@@ -90,8 +90,8 @@
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
 
-      // 1. Filtragem de Assuntos Exteriores
-      const offTopicKeywords = ["futebol", "receita", "bolo", "politica", "partido", "governo", "restaurante", "tempo amanha", "horoscopo", "piada", "formula 1"];
+      // 1. Filtragem de Assuntos Exteriores ao Âmbito Escolar
+      const offTopicKeywords = ["futebol", "receita", "bolo", "politica", "partido", "governo", "restaurante", "tempo amanha", "horoscopo", "piada", "formula 1", "jogos", "cinema"];
       if (offTopicKeywords.some(kw => clean.includes(kw))) {
         return {
           answer: "Lamento, mas apenas posso responder a questões relacionadas com a Escola Técnico-Profissional de Cantanhede.",
@@ -99,87 +99,64 @@
         };
       }
 
-      // 2. Reconhecimento de Saudações (Olá, Bom dia, Boa tarde, etc.)
+      // 2. Saudações
       const greetings = ["ola", "bom dia", "boa tarde", "boa noite", "boas", "alo", "tudo bem", "oi"];
       if (greetings.some(g => clean === g || clean.startsWith(g + " ") || clean.endsWith(" " + g))) {
         return {
-          answer: "Olá! 👋 Como posso ajudar? Pode fazer-me qualquer pergunta sobre os cursos, a PAP, os estágios (FCT), candidaturas, regulamentos ou contactos da ETPC Cantanhede.",
+          answer: "Olá! 👋 Em que posso ser útil? Posso fornecer informações detalhadas sobre a localização, contactos, cursos profissionais, estágios (FCT), PAP, candidaturas ou regulamentos da ETPC Cantanhede.",
           link: null
         };
       }
 
-      // 3. PAP - Prova de Aptidão Profissional
+      // 3. Localização Detalhada e Morada
+      if (clean.includes("onde fica") || clean.includes("localizacao") || clean.includes("morada") || clean.includes("localizad") || clean.includes("onde e") || clean.includes("endereco") || clean.includes("rua")) {
+        return {
+          answer: "<strong>Localização e Morada da ETPC:</strong><br><br>" +
+                  "• <strong>Morada Completa:</strong> Rua Padre Américo, Nº 26, 3060-186 Cantanhede, Portugal.<br>" +
+                  "• <strong>Concelho / Distrito:</strong> Cantanhede / Coimbra.<br>" +
+                  "• <strong>Ponto de Referência:</strong> Situa-se na zona urbana de Cantanhede, com bons acessos rodoviários e ligações de transporte público escolar.",
+          link: "https://etpc.pt/"
+        };
+      }
+
+      // 4. Contactos e Horário da Secretaria
+      if (clean.includes("contacto") || clean.includes("telefone") || clean.includes("email") || clean.includes("mail") || clean.includes("falar com") || clean.includes("secretaria") || clean.includes("ligar")) {
+        return {
+          answer: "<strong>Contactos da ETPC Cantanhede:</strong><br><br>" +
+                  "• <strong>Telefone:</strong> (+351) 231 420 344<br>" +
+                  "• <strong>Email Geral:</strong> geral@etpc.pt<br>" +
+                  "• <strong>Atendimento:</strong> Secretaria da escola no horário normal de expediente (segunda a sexta-feira).",
+          link: "https://etpc.pt/"
+        };
+      }
+
+      // 5. PAP - Prova de Aptidão Profissional
       if (clean.includes("pap") || clean.includes("prova de aptidao") || clean.includes("projeto final") || clean.includes("defesa de pap")) {
         return {
           answer: "<strong>Prova de Aptidão Profissional (PAP) na ETPC:</strong><br><br>" +
                   "• <strong>O que é:</strong> Projeto individual ou em equipa de caráter prático desenvolvido pelos alunos do 12.º ano.<br>" +
-                  "• <strong>Objetivo:</strong> Demonstrar os conhecimentos e competências profissionais adquiridos ao longo dos 3 anos do curso.<br>" +
-                  "• <strong>Avaliação:</strong> Apresentação e defesa pública do projeto perante um Júri de PAP constituído por docentes e especialistas do setor.<br>" +
-                  "• <strong>Regulamento:</strong> Existe um Regulamento de PAP oficial que estabelece a estrutura do relatório, prazos e critérios de avaliação.",
+                  "• <strong>Objetivo:</strong> Demonstrar os conhecimentos, competências e saberes profissionais adquiridos ao longo dos 3 anos do curso.<br>" +
+                  "• <strong>Avaliação:</strong> Apresentação e defesa pública do projeto e da memória descritiva perante um Júri de PAP constituído por docentes e especialistas do setor.<br>" +
+                  "• <strong>Regulamento:</strong> Regulamento de PAP oficial disponível para consulta nos documentos orientadores.",
           link: "https://etpc.pt/"
         };
       }
 
-      // 4. FCT - Formação em Contexto de Trabalho (Estágios)
+      // 6. FCT - Formação em Contexto de Trabalho (Estágios)
       if (clean.includes("fct") || clean.includes("estagio") || clean.includes("estagios") || clean.includes("formacao em contexto de trabalho") || clean.includes("empresa parceira")) {
         return {
           answer: "<strong>Formação em Contexto de Trabalho (FCT / Estágios) na ETPC:</strong><br><br>" +
-                  "• <strong>O que é:</strong> Formação prática realizada em empresas e entidades parceiras.<br>" +
-                  "• <strong>Integração:</strong> Módulos de estágio obrigatórios no plano curricular dos Cursos Profissionais.<br>" +
-                  "• <strong>Parcerias:</strong> A ETPC tem protocolos de colaboração com mais de 100 empresas parceiras.<br>" +
-                  "• <strong>Acompanhamento:</strong> Cada aluno tem acompanhamento por um Orientador de FCT (na empresa) e um Tutor/Professor (na escola).",
+                  "• <strong>O que é:</strong> Componente prática obrigatória realizada em empresas e entidades parceiras do mercado de trabalho.<br>" +
+                  "• <strong>Parcerias:</strong> A ETPC tem protocolos celebrados com mais de 100 empresas parceiras.<br>" +
+                  "• <strong>Acompanhamento:</strong> Cada estudante é acompanhado por um Orientador de FCT (na empresa) e por um Tutor/Professor (na escola), de acordo com o Regulamento de FCT.",
           link: "https://etpc.pt/"
         };
       }
 
-      // 5. EQAVET
-      if (clean.includes("eqavet") || clean.includes("qualidade") || clean.includes("certificacao")) {
+      // 7. Cursos Profissionais (Nível 4 / 12.º Ano)
+      if (clean.includes("curso") || clean.includes("oferta formativa") || clean.includes("nivel 4") || clean.includes("12 ano") || clean.includes("programacao") || clean.includes("software") || clean.includes("saude") || clean.includes("desporto") || clean.includes("estetica") || clean.includes("cozinha") || clean.includes("multimedia") || clean.includes("eletronica") || clean.includes("protecao civil")) {
         return {
-          answer: "<strong>Garantia da Qualidade EQAVET na ETPC:</strong><br><br>" +
-                  "• <strong>Selo de Qualidade:</strong> A ETPC está alinhada com o quadro europeu <em>EQAVET</em>.<br>" +
-                  "• <strong>Objetivo:</strong> Garantir a melhoria contínua na formação profissional, acompanhando a taxa de sucesso dos alunos e a empregabilidade dos diplomados.",
-          link: "https://etpc.pt/"
-        };
-      }
-
-      // 6. Documentos Orientadores e Regulamentos
-      if (clean.includes("regulamento") || clean.includes("documentos") || clean.includes("projeto educativo") || clean.includes("plano anual") || clean.includes("orientadores")) {
-        return {
-          answer: "<strong>Documentos Orientadores da ETPC:</strong><br><br>" +
-                  "• <strong>Projeto Educativo:</strong> Linhas orientadoras e valores da escola.<br>" +
-                  "• <strong>Regulamento Interno:</strong> Direitos, deveres e regras da comunidade escolar.<br>" +
-                  "• <strong>Plano Anual de Atividades (PAA):</strong> Atividades socioculturais e pedagógicas.<br>" +
-                  "• <strong>Regulamentos Específicos:</strong> Regulamento de FCT (Estágios) e Regulamento de PAP.",
-          link: "https://etpc.pt/"
-        };
-      }
-
-      // 7. Contactos e Morada
-      if (clean.includes("contacto") || clean.includes("onde fica") || clean.includes("morada") || clean.includes("localizad") || clean.includes("telefone") || clean.includes("email") || clean.includes("mail") || clean.includes("endereco") || clean.includes("secretaria")) {
-        return {
-          answer: "<strong>Contactos e Morada Oficial da ETPC Cantanhede:</strong><br><br>" +
-                  "• <strong>Morada:</strong> Rua Padre Américo, Nº 26, 3060-186 Cantanhede<br>" +
-                  "• <strong>Telefone:</strong> (+351) 231 420 344<br>" +
-                  "• <strong>Email Geral:</strong> geral@etpc.pt<br>" +
-                  "• <strong>Secretaria:</strong> Atendimento no horário normal de expediente.",
-          link: "https://etpc.pt/"
-        };
-      }
-
-      // 8. Cursos CEF e Adultos
-      if (clean.includes("cef") || clean.includes("adulto") || clean.includes("modular") || clean.includes("requalificacao")) {
-        return {
-          answer: "<strong>Cursos CEF e Formação de Adultos na ETPC:</strong><br><br>" +
-                  "• <strong>Cursos CEF (Tipo 3):</strong> CEF Cozinheiro e CEF Operador de Informática.<br>" +
-                  "• <strong>(Re)Qualificação de Adultos:</strong> Formação Modular Certificada.",
-          link: "https://etpc.pt/"
-        };
-      }
-
-      // 9. Cursos Profissionais
-      if (clean.includes("curso") || clean.includes("oferta formativa") || clean.includes("nivel 4") || clean.includes("12 ano") || clean.includes("programacao") || clean.includes("software") || clean.includes("saude") || clean.includes("desporto") || clean.includes("estetica") || clean.includes("cozinha") || clean.includes("multimedia") || clean.includes("eletronica")) {
-        return {
-          answer: "<strong>Cursos Profissionais de Nível 4 (Equivalência ao 12º Ano):</strong><br><br>" +
+          answer: "<strong>Cursos Profissionais de Nível 4 (Equivalência ao 12.º Ano):</strong><br><br>" +
                   "• Técnico/a de Desenvolvimento de Software<br>" +
                   "• Técnico/a de Sistemas de Computação e Redes<br>" +
                   "• Técnico/a de Eletrónica e Automação<br>" +
@@ -196,30 +173,61 @@
         };
       }
 
-      // 10. Projetos, Erasmus+, CTE e Eco-Escolas
-      if (clean.includes("erasmus") || clean.includes("eco") || clean.includes("projeto") || clean.includes("atividade") || clean.includes("historia") || clean.includes("sobre") || clean.includes("cte") || clean.includes("prr") || clean.includes("bandeira verde")) {
+      // 8. Cursos CEF e Formação de Adultos
+      if (clean.includes("cef") || clean.includes("adulto") || clean.includes("modular") || clean.includes("requalificacao")) {
         return {
-          answer: "<strong>Projetos e Destaques da ETPC Cantanhede:</strong><br><br>" +
-                  "• <strong>Erasmus+:</strong> Mobilidades internacionais de estágio/formação para alunos e professores.<br>" +
-                  "• <strong>Eco-Escolas:</strong> Galardão de Bandeira Verde pela sustentabilidade ambiental.<br>" +
-                  "• <strong>CTE Informática:</strong> Centro Tecnológico Especializado financiado pelo PRR/União Europeia.<br>" +
-                  "• <strong>História:</strong> Mais de 30 anos de existência e +2000 diplomados.",
+          answer: "<strong>Cursos CEF e Formação de Adultos na ETPC:</strong><br><br>" +
+                  "• <strong>Cursos CEF (Tipo 3):</strong> CEF Cozinheiro e CEF Operador de Informática.<br>" +
+                  "• <strong>Formação de Adultos:</strong> Formação Modular Certificada dirigida à (re)qualificação profissional.",
           link: "https://etpc.pt/"
         };
       }
 
-      // 11. GIAA, Apoios e Inscrições
+      // 9. EQAVET e Certificação de Qualidade
+      if (clean.includes("eqavet") || clean.includes("qualidade") || clean.includes("certificacao")) {
+        return {
+          answer: "<strong>Garantia da Qualidade EQAVET na ETPC:</strong><br><br>" +
+                  "• <strong>Selo de Qualidade:</strong> A ETPC está certificada segundo o quadro europeu <em>EQAVET</em> (European Quality Assurance Reference Framework for Vocational Education and Training).<br>" +
+                  "• <strong>Finalidade:</strong> Assegurar a melhoria contínua da qualidade do ensino profissional e a alta taxa de empregabilidade dos graduados.",
+          link: "https://etpc.pt/"
+        };
+      }
+
+      // 10. Projetos (Erasmus+, Eco-Escolas, CTE Informática)
+      if (clean.includes("erasmus") || clean.includes("eco") || clean.includes("projeto") || clean.includes("atividade") || clean.includes("cte") || clean.includes("prr") || clean.includes("bandeira verde")) {
+        return {
+          answer: "<strong>Projetos e Inovações na ETPC:</strong><br><br>" +
+                  "• <strong>Erasmus+:</strong> Programa de mobilidade europeia com estágios e formação no estrangeiro para alunos e professores (outgoing e incoming).<br>" +
+                  "• <strong>Eco-Escolas:</strong> Reconhecimento com o Galardão Bandeira Verde pelas boas práticas ambientais.<br>" +
+                  "• <strong>CTE Informática:</strong> Centro Tecnológico Especializado financiado pelo PRR / União Europeia para apetrechamento de equipamentos avançados de informática.",
+          link: "https://etpc.pt/"
+        };
+      }
+
+      // 11. Documentos Orientadores (Projeto Educativo, Regulamento Interno, PAA)
+      if (clean.includes("regulamento") || clean.includes("documentos") || clean.includes("projeto educativo") || clean.includes("plano anual") || clean.includes("paa")) {
+        return {
+          answer: "<strong>Documentos Orientadores Oficiais da ETPC:</strong><br><br>" +
+                  "• <strong>Projeto Educativo:</strong> Orientações pedagógicas e estratégicas da escola.<br>" +
+                  "• <strong>Regulamento Interno:</strong> Regras da comunidade escolar, direitos e deveres dos alunos.<br>" +
+                  "• <strong>Plano Anual de Atividades (PAA):</strong> Lista de atividades culturais, técnicas e desportivas do ano letivo.<br>" +
+                  "• <strong>Regulamentos de FCT e PAP:</strong> Normas específicas de avaliação dos estágios e projetos finais.",
+          link: "https://etpc.pt/"
+        };
+      }
+
+      // 12. Candidaturas, GIAA, Apoios e E-community
       if (clean.includes("inscri") || clean.includes("candidatur") || clean.includes("giaa") || clean.includes("apoio") || clean.includes("subsidio") || clean.includes("ecommunity") || clean.includes("manual") || clean.includes("bem-estar")) {
         return {
-          answer: "<strong>Gabinetes, Apoios e Inscrições:</strong><br><br>" +
-                  "• <strong>GIAA (Gabinete de Informação e Apoio ao Aluno):</strong> Apoio à saúde e bem-estar escolar.<br>" +
-                  "• <strong>Inscrições:</strong> Podem ser realizadas online no site oficial ou na secretaria.<br>" +
-                  "• <strong>E-community:</strong> Plataforma digital para manuais e tarefas académicas.",
+          answer: "<strong>Serviços aos Alunos e Inscrições:</strong><br><br>" +
+                  "• <strong>GIAA (Gabinete de Informação e Apoio ao Aluno):</strong> Gabinete focado na saúde e bem-estar do aluno.<br>" +
+                  "• <strong>Inscrições:</strong> Candidaturas disponíveis online no site oficial ou presencialmente na secretaria.<br>" +
+                  "• <strong>Plataforma E-community:</strong> Plataforma pedagógica digital para consulta de manuais e trabalhos.",
           link: "https://etpc.pt/"
         };
       }
 
-      // 12. Tratamento de perguntas sem informação disponível
+      // 13. Pergunta não registada na base de dados
       return {
         answer: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão.",
         link: null
