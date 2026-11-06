@@ -3,80 +3,420 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETPC - Base de Conhecimento Completa</title>
+  <title>ETPC - Escola Técnico-Profissional de Cantanhede</title>
   
+  <!-- Fonte Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary: #0a4b88;
-      --primary-dark: #06335e;
-      --bg: #f8fafc;
+      --etpc-navy: #002b49;
+      --etpc-blue: #005696;
+      --etpc-blue-light: #0073cc;
+      --etpc-accent: #d97706;
+      --etpc-bg: #f4f7fa;
       --card-bg: #ffffff;
-      --text: #1e293b;
-      --text-muted: #64748b;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 2px 4px rgba(0,43,73,0.04);
+      --shadow-lg: 0 12px 32px rgba(0,43,73,0.12);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
-
-    header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-    header .logo { font-size: 1.3rem; font-weight: bold; }
-    header nav a { color: white; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
-
-    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; width: 100%; }
-    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
-
-    .hero h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 0.75rem; }
-    .hero p { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem; }
-
-    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 600px; }
-    .chat-header { background: var(--primary); color: white; padding: 0.9rem 1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-    .status-badge { background: #0284c7; color: white; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 12px; text-transform: uppercase; font-weight: 700; }
-
-    .chat-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f1f5f9; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
     
-    .msg { max-width: 88%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.92rem; line-height: 1.45; }
-    .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .msg.bot { background: white; color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    
-    .source-link { display: inline-block; margin-top: 0.6rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+    body { 
+      background-color: var(--etpc-bg); 
+      color: var(--text-main); 
+      line-height: 1.6; 
+      display: flex; 
+      flex-direction: column; 
+      min-height: 100vh;
+      background-image: radial-gradient(#cbd5e1 0.8px, transparent 0.8px);
+      background-size: 24px 24px;
+    }
 
-    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; }
-    .chat-form { display: flex; gap: 0.5rem; }
-    .chat-input { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.9rem; }
-    .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .send-btn:hover { background: var(--primary-dark); }
+    /* Topbar & Header */
+    header { 
+      background: linear-gradient(135deg, var(--etpc-navy) 0%, var(--etpc-blue) 100%); 
+      color: white; 
+      padding: 0.85rem 2rem; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      background: white;
+      color: var(--etpc-navy);
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    header nav a { 
+      color: white; 
+      text-decoration: none; 
+      font-weight: 600; 
+      font-size: 0.88rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    header nav a:hover { 
+      background: rgba(255, 255, 255, 0.28); 
+      transform: translateY(-1px);
+    }
+
+    /* Main Container Grid */
+    .container { 
+      max-width: 1200px; 
+      margin: 2.5rem auto; 
+      padding: 0 1.5rem; 
+      display: grid; 
+      grid-template-columns: 1fr 1.15fr; 
+      gap: 2.5rem; 
+      flex: 1; 
+      width: 100%; 
+      align-items: start;
+    }
+
+    @media (max-width: 900px) { 
+      .container { grid-template-columns: 1fr; margin: 1.5rem auto; gap: 1.5rem; } 
+    }
+
+    /* Hero Section */
+    .hero-card {
+      background: var(--card-bg);
+      padding: 2.25rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: var(--etpc-blue-light);
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 1rem;
+      border: 1px solid #bfdbfe;
+    }
+
+    .hero h1 { 
+      font-size: 2.1rem; 
+      color: var(--etpc-navy); 
+      margin-bottom: 1rem; 
+      line-height: 1.25;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p { 
+      color: var(--text-muted); 
+      margin-bottom: 1.25rem; 
+      font-size: 0.98rem; 
+    }
+
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--etpc-navy);
+      background: #f8fafc;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #edf2f7;
+    }
+
+    /* Chat Widget Interface */
+    .chat-wrapper { 
+      background: var(--card-bg); 
+      border-radius: 16px; 
+      box-shadow: var(--shadow-lg); 
+      overflow: hidden; 
+      border: 1px solid var(--border-color); 
+      display: flex; 
+      flex-direction: column; 
+      height: 620px; 
+    }
+
+    .chat-header { 
+      background: var(--etpc-navy); 
+      color: white; 
+      padding: 1.1rem 1.25rem; 
+      font-weight: 700; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-bottom: 3px solid var(--etpc-accent);
+    }
+
+    .chat-header-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .status-indicator { 
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(34, 197, 94, 0.15); 
+      color: #4ade80; 
+      font-size: 0.75rem; 
+      padding: 0.25rem 0.65rem; 
+      border-radius: 12px; 
+      font-weight: 700; 
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .chat-body { 
+      flex: 1; 
+      padding: 1.25rem; 
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1rem; 
+      background-color: #f8fafc; 
+    }
+
+    .msg { 
+      max-width: 88%; 
+      padding: 0.9rem 1.1rem; 
+      border-radius: 14px; 
+      font-size: 0.92rem; 
+      line-height: 1.5; 
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user { 
+      background: linear-gradient(135deg, var(--etpc-navy) 0%, var(--etpc-blue) 100%); 
+      color: white; 
+      align-self: flex-end; 
+      border-bottom-right-radius: 3px; 
+      box-shadow: 0 3px 10px rgba(0, 43, 73, 0.15);
+    }
+
+    .msg.bot { 
+      background: white; 
+      color: var(--text-main); 
+      align-self: flex-start; 
+      border-bottom-left-radius: 3px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--etpc-blue-light);
+    }
+
+    .source-link { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 0.3rem; 
+      margin-top: 0.75rem; 
+      font-size: 0.8rem; 
+      color: var(--etpc-blue-light); 
+      font-weight: 700; 
+      text-decoration: none; 
+      background: #eff6ff; 
+      padding: 0.4rem 0.7rem; 
+      border-radius: 6px; 
+      border: 1px solid #dbeafe; 
+      transition: background 0.2s;
+    }
+
+    .source-link:hover {
+      background: #dbeafe;
+    }
+
+    .chat-footer { 
+      padding: 1rem; 
+      background: white; 
+      border-top: 1px solid var(--border-color); 
+    }
+
+    .chat-form { 
+      display: flex; 
+      gap: 0.6rem; 
+    }
+
+    .chat-input { 
+      flex: 1; 
+      padding: 0.85rem 1.1rem; 
+      border: 1.5px solid var(--border-color); 
+      border-radius: 10px; 
+      outline: none; 
+      font-size: 0.92rem; 
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #f8fafc;
+    }
+
+    .chat-input:focus {
+      border-color: var(--etpc-blue-light);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 115, 204, 0.12);
+    }
+
+    .send-btn { 
+      background: linear-gradient(135deg, var(--etpc-navy) 0%, var(--etpc-blue) 100%); 
+      color: white; 
+      border: none; 
+      padding: 0.85rem 1.4rem; 
+      border-radius: 10px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .send-btn:hover { 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 43, 73, 0.25);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-top: auto;
+      border-top: 1px solid var(--border-color);
+      background: white;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo">ETPC Cantanhede</div>
-    <nav><a href="https://etpc.pt/" target="_blank">Website Oficial</a></nav>
+    <div class="brand">
+      <div class="brand-logo">ETPC</div>
+      <div class="brand-title">Escola Técnico-Profissional de Cantanhede</div>
+    </div>
+    <nav>
+      <a href="https://etpc.pt/" target="_blank">
+        <span>Website Oficial</span> ↗
+      </a>
+    </nav>
   </header>
 
   <main class="container">
-    <section class="hero">
-      <h1>Escola Técnico-Profissional de Cantanhede</h1>
-      <p>Base de conhecimento integral: Localização, Cursos, PAP, Estágios (FCT), Candidaturas, Regulamentos, Projetos e Contactos.</p>
-      <p><small><em>Respostas fundamentadas exclusivamente no website oficial da escola.</em></small></p>
+    <section class="hero-card">
+      <span class="hero-badge">Ensino Profissional de Excelência</span>
+      <h1>Assistente Virtual de Informações ETPC</h1>
+      <p>Esclareça instantaneamente todas as suas dúvidas sobre a oferta formativa, estágios (FCT), Prova de Aptidão Profissional (PAP), candidaturas, regulamentos e contactos oficiais.</p>
+      <p><small><em>As respostas fornecidas são fundamentadas exclusivamente nas informações públicas do site oficial da ETPC.</em></small></p>
+
+      <div class="features-list">
+        <div class="feature-item">🎓 Nível 4 (12º Ano)</div>
+        <div class="feature-item">💼 Estágios Garantidos (FCT)</div>
+        <div class="feature-item">🌍 Mobilidade Erasmus+</div>
+        <div class="feature-item">🏅 Certificação EQAVET</div>
+      </div>
     </section>
 
     <section class="chat-wrapper">
       <div class="chat-header">
-        <span>Assistente ETPC</span>
-        <span class="status-badge">Base Geral</span>
+        <div class="chat-header-info">
+          <div class="avatar-icon">🤖</div>
+          <div>
+            <div style="font-size: 0.95rem; font-weight: 800;">Assistente Virtual ETPC</div>
+            <div style="font-size: 0.75rem; opacity: 0.85; font-weight: 500;">Base de Conhecimento Oficial</div>
+          </div>
+        </div>
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span>Base Local</span>
+        </div>
       </div>
+
       <div class="chat-body" id="chatContainer">
-        <div class="msg bot">Olá! Sou o assistente virtual da ETPC Cantanhede. Faça a sua pergunta em linguagem natural.</div>
+        <div class="msg bot">
+          <strong>Olá! 👋 Bem-vindo à ETPC.</strong><br>
+          Sou o assistente virtual da Escola Técnico-Profissional de Cantanhede. Em que posso ajudar hoje? Pode perguntar-me sobre cursos, PAP, FCT, localização ou inscrições.
+        </div>
       </div>
+
       <div class="chat-footer">
         <form class="chat-form" id="chatForm">
-          <input type="text" id="userInput" class="chat-input" placeholder="Pergunte sobre localização, cursos, PAP, FCT, contactos..." autocomplete="off" required>
-          <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
+          <input type="text" id="userInput" class="chat-input" placeholder="Escreva a sua pergunta aqui..." autocomplete="off" required>
+          <button type="submit" id="sendBtn" class="send-btn">
+            <span>Enviar</span>
+          </button>
         </form>
       </div>
     </section>
   </main>
+
+  <footer>
+    <p>&copy; Escola Técnico-Profissional de Cantanhede — Rua Padre Américo, Nº 26, 3060-186 Cantanhede</p>
+  </footer>
 
   <script>
     const chatForm = document.getElementById('chatForm');
@@ -90,7 +430,7 @@
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
 
-      // 1. Filtragem de Assuntos Exteriores ao Âmbito Escolar
+      // 1. Rejeição de Assuntos Exteriores
       const offTopicKeywords = ["futebol", "receita", "bolo", "politica", "partido", "governo", "restaurante", "tempo amanha", "horoscopo", "piada", "formula 1", "jogos", "cinema"];
       if (offTopicKeywords.some(kw => clean.includes(kw))) {
         return {
@@ -99,7 +439,7 @@
         };
       }
 
-      // 2. Saudações
+      // 2. Reconhecimento de Saudações
       const greetings = ["ola", "bom dia", "boa tarde", "boa noite", "boas", "alo", "tudo bem", "oi"];
       if (greetings.some(g => clean === g || clean.startsWith(g + " ") || clean.endsWith(" " + g))) {
         return {
@@ -114,7 +454,7 @@
           answer: "<strong>Localização e Morada da ETPC:</strong><br><br>" +
                   "• <strong>Morada Completa:</strong> Rua Padre Américo, Nº 26, 3060-186 Cantanhede, Portugal.<br>" +
                   "• <strong>Concelho / Distrito:</strong> Cantanhede / Coimbra.<br>" +
-                  "• <strong>Ponto de Referência:</strong> Situa-se na zona urbana de Cantanhede, com bons acessos rodoviários e ligações de transporte público escolar.",
+                  "• <strong>Enquadramento:</strong> Localizada na zona urbana de Cantanhede, com facilidade de acessos e ligações de transporte público escolar.",
           link: "https://etpc.pt/"
         };
       }
@@ -125,7 +465,7 @@
           answer: "<strong>Contactos da ETPC Cantanhede:</strong><br><br>" +
                   "• <strong>Telefone:</strong> (+351) 231 420 344<br>" +
                   "• <strong>Email Geral:</strong> geral@etpc.pt<br>" +
-                  "• <strong>Atendimento:</strong> Secretaria da escola no horário normal de expediente (segunda a sexta-feira).",
+                  "• <strong>Atendimento:</strong> Secretaria da escola durante o horário normal de expediente (segunda a sexta-feira).",
           link: "https://etpc.pt/"
         };
       }
@@ -134,10 +474,10 @@
       if (clean.includes("pap") || clean.includes("prova de aptidao") || clean.includes("projeto final") || clean.includes("defesa de pap")) {
         return {
           answer: "<strong>Prova de Aptidão Profissional (PAP) na ETPC:</strong><br><br>" +
-                  "• <strong>O que é:</strong> Projeto individual ou em equipa de caráter prático desenvolvido pelos alunos do 12.º ano.<br>" +
+                  "• <strong>O que é:</strong> Projeto individual ou em equipa de caráter prático e integrador desenvolvido pelos alunos do 12.º ano.<br>" +
                   "• <strong>Objetivo:</strong> Demonstrar os conhecimentos, competências e saberes profissionais adquiridos ao longo dos 3 anos do curso.<br>" +
-                  "• <strong>Avaliação:</strong> Apresentação e defesa pública do projeto e da memória descritiva perante um Júri de PAP constituído por docentes e especialistas do setor.<br>" +
-                  "• <strong>Regulamento:</strong> Regulamento de PAP oficial disponível para consulta nos documentos orientadores.",
+                  "• <strong>Avaliação:</strong> Apresentação e defesa pública do projeto e da respetiva memória descritiva perante um Júri de PAP constituído por docentes e especialistas do setor.<br>" +
+                  "• <strong>Regulamento:</strong> A escola disponibiliza o Regulamento de PAP oficial com todas as normas de apresentação e critérios de classificação.",
           link: "https://etpc.pt/"
         };
       }
@@ -146,9 +486,9 @@
       if (clean.includes("fct") || clean.includes("estagio") || clean.includes("estagios") || clean.includes("formacao em contexto de trabalho") || clean.includes("empresa parceira")) {
         return {
           answer: "<strong>Formação em Contexto de Trabalho (FCT / Estágios) na ETPC:</strong><br><br>" +
-                  "• <strong>O que é:</strong> Componente prática obrigatória realizada em empresas e entidades parceiras do mercado de trabalho.<br>" +
-                  "• <strong>Parcerias:</strong> A ETPC tem protocolos celebrados com mais de 100 empresas parceiras.<br>" +
-                  "• <strong>Acompanhamento:</strong> Cada estudante é acompanhado por um Orientador de FCT (na empresa) e por um Tutor/Professor (na escola), de acordo com o Regulamento de FCT.",
+                  "• <strong>O que é:</strong> Componente prática obrigatória em ambiente real de trabalho realizada em empresas e entidades parceiras.<br>" +
+                  "• <strong>Parcerias:</strong> A ETPC tem protocolos celebrados com mais de 100 empresas parceiras no mercado de trabalho.<br>" +
+                  "• <strong>Acompanhamento:</strong> Cada estudante é acompanhado por um Orientador de FCT (na empresa) e por um Tutor/Professor Acompanhante (na escola), segundo o Regulamento de FCT.",
           link: "https://etpc.pt/"
         };
       }
@@ -188,7 +528,7 @@
         return {
           answer: "<strong>Garantia da Qualidade EQAVET na ETPC:</strong><br><br>" +
                   "• <strong>Selo de Qualidade:</strong> A ETPC está certificada segundo o quadro europeu <em>EQAVET</em> (European Quality Assurance Reference Framework for Vocational Education and Training).<br>" +
-                  "• <strong>Finalidade:</strong> Assegurar a melhoria contínua da qualidade do ensino profissional e a alta taxa de empregabilidade dos graduados.",
+                  "• <strong>Finalidade:</strong> Assegurar a melhoria contínua do ensino profissional e monitorizar a alta taxa de empregabilidade dos diplomados.",
           link: "https://etpc.pt/"
         };
       }
@@ -197,9 +537,9 @@
       if (clean.includes("erasmus") || clean.includes("eco") || clean.includes("projeto") || clean.includes("atividade") || clean.includes("cte") || clean.includes("prr") || clean.includes("bandeira verde")) {
         return {
           answer: "<strong>Projetos e Inovações na ETPC:</strong><br><br>" +
-                  "• <strong>Erasmus+:</strong> Programa de mobilidade europeia com estágios e formação no estrangeiro para alunos e professores (outgoing e incoming).<br>" +
-                  "• <strong>Eco-Escolas:</strong> Reconhecimento com o Galardão Bandeira Verde pelas boas práticas ambientais.<br>" +
-                  "• <strong>CTE Informática:</strong> Centro Tecnológico Especializado financiado pelo PRR / União Europeia para apetrechamento de equipamentos avançados de informática.",
+                  "• <strong>Erasmus+:</strong> Programa de mobilidade europeia com estágios no estrangeiro para alunos e professores.<br>" +
+                  "• <strong>Eco-Escolas:</strong> Distinguida continuadamente com o Galardão Bandeira Verde pelas boas práticas ambientais.<br>" +
+                  "• <strong>CTE Informática:</strong> Centro Tecnológico Especializado financiado pelo PRR / União Europeia para apetrechamento tecnológico.",
           link: "https://etpc.pt/"
         };
       }
@@ -208,10 +548,10 @@
       if (clean.includes("regulamento") || clean.includes("documentos") || clean.includes("projeto educativo") || clean.includes("plano anual") || clean.includes("paa")) {
         return {
           answer: "<strong>Documentos Orientadores Oficiais da ETPC:</strong><br><br>" +
-                  "• <strong>Projeto Educativo:</strong> Orientações pedagógicas e estratégicas da escola.<br>" +
+                  "• <strong>Projeto Educativo:</strong> Orientações pedagógicas e visão da escola.<br>" +
                   "• <strong>Regulamento Interno:</strong> Regras da comunidade escolar, direitos e deveres dos alunos.<br>" +
-                  "• <strong>Plano Anual de Atividades (PAA):</strong> Lista de atividades culturais, técnicas e desportivas do ano letivo.<br>" +
-                  "• <strong>Regulamentos de FCT e PAP:</strong> Normas específicas de avaliação dos estágios e projetos finais.",
+                  "• <strong>Plano Anual de Atividades (PAA):</strong> Lista de atividades culturais e técnicas do ano letivo.<br>" +
+                  "• <strong>Regulamentos de FCT e PAP:</strong> Normas de execução e avaliação de estágios e projetos finais.",
           link: "https://etpc.pt/"
         };
       }
@@ -220,14 +560,14 @@
       if (clean.includes("inscri") || clean.includes("candidatur") || clean.includes("giaa") || clean.includes("apoio") || clean.includes("subsidio") || clean.includes("ecommunity") || clean.includes("manual") || clean.includes("bem-estar")) {
         return {
           answer: "<strong>Serviços aos Alunos e Inscrições:</strong><br><br>" +
-                  "• <strong>GIAA (Gabinete de Informação e Apoio ao Aluno):</strong> Gabinete focado na saúde e bem-estar do aluno.<br>" +
-                  "• <strong>Inscrições:</strong> Candidaturas disponíveis online no site oficial ou presencialmente na secretaria.<br>" +
-                  "• <strong>Plataforma E-community:</strong> Plataforma pedagógica digital para consulta de manuais e trabalhos.",
+                  "• <strong>GIAA (Gabinete de Informação e Apoio ao Aluno):</strong> Acompanhamento e apoio à saúde e bem-estar do estudante.<br>" +
+                  "• <strong>Inscrições:</strong> Candidaturas abertas online no site oficial ou presencialmente na secretaria da escola.<br>" +
+                  "• <strong>Plataforma E-community:</strong> Plataforma digital escolar para acesso a manuais e conteúdos.",
           link: "https://etpc.pt/"
         };
       }
 
-      // 13. Pergunta não registada na base de dados
+      // 13. Resposta para perguntas sem informação disponível
       return {
         answer: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão.",
         link: null
@@ -247,7 +587,7 @@
         let fullReply = result.answer;
 
         if (result.link) {
-          fullReply += `<br><a href="${result.link}" target="_blank" class="source-link">🔗 Consultar página oficial no site da ETPC</a>`;
+          fullReply += `<br><a href="${result.link}" target="_blank" class="source-link">🔗 Consultar no Site Oficial da ETPC</a>`;
         }
 
         appendMessage(fullReply, 'bot', true);
