@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETPC - Escola Técnico-Profissional de Cantanhede</title>
+  <title>ETPC - Assistente Virtual Inteligente</title>
   
-  <!-- Supabase via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --primary: #0a4b88;
@@ -22,147 +19,194 @@
     body { background-color: var(--bg); color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
 
     header { background-color: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-    header .logo { font-size: 1.4rem; font-weight: bold; }
-    header nav a { color: white; text-decoration: none; font-weight: 500; }
+    header .logo { font-size: 1.3rem; font-weight: bold; }
+    header nav a { color: white; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
 
     .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; width: 100%; }
     @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
-    .hero h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 1rem; }
-    .hero p { color: var(--text-muted); margin-bottom: 1rem; }
+    .hero h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 0.75rem; }
+    .hero p { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem; }
 
-    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 580px; }
-    .chat-header { background: var(--primary); color: white; padding: 1rem; font-weight: bold; text-align: center; }
+    .chat-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #cbd5e1; display: flex; flex-direction: column; height: 560px; }
+    .chat-header { background: var(--primary); color: white; padding: 0.9rem 1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .ai-badge { background: #22c55e; color: white; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 12px; text-transform: uppercase; font-weight: 700; }
 
     .chat-body { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f1f5f9; }
     
-    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.4; }
+    .msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.92rem; line-height: 1.45; }
     .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
     .msg.bot { background: white; color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .msg.error { background: #fee2e2; color: #991b1b; align-self: center; text-align: center; width: 90%; }
     
-    .source-link { display: inline-block; margin-top: 0.75rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
+    .source-link { display: inline-block; margin-top: 0.6rem; font-size: 0.8rem; color: var(--primary); font-weight: bold; text-decoration: underline; }
 
-    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 0.75rem; }
+    .chat-footer { padding: 0.75rem; background: white; border-top: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 0.5rem; }
     .chat-form { display: flex; gap: 0.5rem; }
-    .chat-input { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+    .chat-input { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.9rem; }
     .send-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
     .send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
-    .cards-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .option-card {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      color: var(--primary-dark);
-      padding: 0.4rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .option-card:hover {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .chip { background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--primary-dark); padding: 0.3rem 0.6rem; border-radius: 15px; font-size: 0.78rem; cursor: pointer; }
+    .chip:hover { background: #e2e8f0; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="logo">ETPC Cantanhede</div>
-    <nav><a href="https://etpc.pt/" target="_blank">Site Oficial ETPC</a></nav>
+    <nav><a href="https://etpc.pt/" target="_blank">Website Oficial</a></nav>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h1>Escola Técnico-Profissional de Cantanhede</h1>
-      <p>Bem-vindo à base de conhecimento da ETPC. Consulte as informações oficiais sobre os nossos cursos, contactos, apoios e história.</p>
-      <p><small><em>Selecione uma das opções nos cartões abaixo.</em></small></p>
+      <h1>Assistente Virtual ETPC</h1>
+      <p>Coloque as suas questões em linguagem natural sobre cursos, candidaturas, contactos e projetos da Escola Técnico-Profissional de Cantanhede.</p>
+      <p><small><em>Respostas geradas por Inteligência Artificial fundamentadas estritamente no site oficial da escola.</em></small></p>
     </section>
 
     <section class="chat-wrapper">
-      <div class="chat-header">Base de Conhecimento ETPC</div>
+      <div class="chat-header">
+        <span>Assistente ETPC</span>
+        <span class="ai-badge">IA Ativa</span>
+      </div>
       <div class="chat-body" id="chatContainer">
-        <div class="msg bot">Olá! Clica num dos cartões abaixo da caixa de texto para consultar as informações da escola.</div>
+        <div class="msg bot">Olá! Sou o assistente virtual da ETPC Cantanhede. Como posso ajudar?</div>
       </div>
       <div class="chat-footer">
+        <div class="suggestions">
+          <span class="chip" onclick="fillQuery('Que cursos profissionais existem na ETPC?')">📚 Cursos</span>
+          <span class="chip" onclick="fillQuery('Onde fica a escola e qual é o contacto?')">📞 Contactos</span>
+          <span class="chip" onclick="fillQuery('Que informações existem sobre o projeto Erasmus?')">🌍 Erasmus+</span>
+        </div>
         <form class="chat-form" id="chatForm">
-          <input type="text" id="userInput" class="chat-input" placeholder="Escreva aqui..." autocomplete="off">
+          <input type="text" id="userInput" class="chat-input" placeholder="Escreva a sua pergunta..." autocomplete="off" required>
           <button type="submit" id="sendBtn" class="send-btn">Enviar</button>
         </form>
-
-        <div class="cards-container">
-          <button type="button" class="option-card" onclick="selectOption('contactos', 'Quais são os contactos e morada da ETPC Cantanhede?')">📞 Contactos e Morada</button>
-          <button type="button" class="option-card" onclick="selectOption('cursos', 'Quais são os cursos profissionais de Nível 4?')">📚 Cursos Profissionais</button>
-          <button type="button" class="option-card" onclick="selectOption('cef-adultos', 'Quais são os cursos CEF e formação de adultos?')">🎓 Cursos CEF e Adultos</button>
-          <button type="button" class="option-card" onclick="selectOption('destaques', 'Quais são as principais informações sobre a escola?')">⭐ Sobre a ETPC</button>
-          <button type="button" class="option-card" onclick="selectOption('apoios', 'Como funcionam os gabinetes e inscrições?')">ℹ️ Gabinetes e Inscrições</button>
-        </div>
       </div>
     </section>
   </main>
 
   <script>
-    const SUPABASE_URL = "https://fjqycwjqtcklgyamsfrm.supabase.co"; 
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqcXljd2pxdGNrbGd5YW1zZnJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MzEzMTcsImV4cCI6MjEwOTIwNzMxN30.lBBHcl8ZpBB_6lStcSM4cZ6VKkApbBRhX5h1Ng6buL8"; 
+    // CHAVE DA API DA GROQ (substitui pelo teu token de console.groq.com)
+    const GROQ_API_KEY = "SUA_CHAVE_GROQ_AQUI"; 
 
-    const { createClient } = window.supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // BASE DE CONHECIMENTO COMPLETA EXTRAÍDA DE HTTPS://ETPC.PT/
+    const ETPC_KNOWLEDGE_BASE = `
+--- INFORMAÇÃO OFICIAL DA ESCOLA TÉCNICO-PROFISSIONAL DE CANTANHEDE (ETPC) ---
+Website Oficial: https://etpc.pt/
+
+1. CONTACTOS E LOCALIZAÇÃO:
+- Morada: Rua Padre Américo, Nº 26, 3060-186 Cantanhede
+- Telefone: (+351) 231 420 344
+- Email Geral: geral@etpc.pt
+- Atendimento: Secretaria da escola
+
+2. CURSOS PROFISSIONAIS (Nível 4 / Equivalência ao 12º Ano):
+- Técnico/a de Desenvolvimento de Software
+- Técnico/a de Sistemas de Computação e Redes
+- Técnico/a de Eletrónica e Automação
+- Técnico/a de Gestão e Administração
+- Técnico/a de Comunicação – Marketing, Relações Públicas e Publicidade
+- Técnico/a de Cozinha e Restauração
+- Técnico/a Auxiliar de Saúde
+- Técnico/a de Apoio à Intervenção Social
+- Técnico/a de Desporto
+- Técnico/a de Proteção Civil
+- Cabeleireiro/a
+- Esteticista
+
+3. CURSOS CEF E FORMAÇÃO DE ADULTOS:
+- Cursos CEF (Tipo 3): Cozinheiro, Operador de Informática.
+- Formação de Adultos: Formação Modular Certificada para (re)qualificação profissional.
+
+4. SOBRE E DESTAQUES DA ETPC:
+- História: Mais de 30 anos de existência dedicados ao ensino profissional.
+- Impacto: Mais de 2000 alunos diplomados e mais de 100 empresas parceiras para estágios e inserção laboral.
+- Centro Tecnológico Especializado (CTE): Candidatura aprovada via PRR/União Europeia na área da Informática com forte investimento em equipamentos tecnológicos.
+- Internacionalização: Projetos Erasmus+ com momentos de outgoing (alunos/professores no estrangeiro) e incoming.
+- Sustentabilidade: Galardão Eco-Escolas com entrega da Bandeira Verde.
+- Gabinete de Apoio: GIAA (Gabinete de Informação e Apoio ao Aluno) focado na saúde e bem-estar.
+- Plataformas: E-community para gestão escolar e manuais digitais.
+- Candidaturas: Inscrição online no site ou presencialmente na escola.
+--- FIM DA BASE DE CONHECIMENTO ---
+`;
 
     const chatForm = document.getElementById('chatForm');
     const userInput = document.getElementById('userInput');
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
 
-    chatForm.addEventListener('submit', (e) => {
+    function fillQuery(text) {
+      userInput.value = text;
+      userInput.focus();
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const question = userInput.value.trim();
       if (!question) return;
 
       appendMessage(question, 'user');
       userInput.value = '';
-
-      setTimeout(() => {
-        appendMessage("Olá 👋, usa as frases nos cardes em baixo da caixa de texto 😁", 'bot');
-      }, 300);
-    });
-
-    async function selectOption(slugKey, textPrompt) {
-      appendMessage(textPrompt, 'user');
       setLoading(true);
 
-      const loadingMsg = appendMessage('A consultar a base de dados...', 'bot');
+      const loadingMsg = appendMessage('A processar com Inteligência Artificial...', 'bot');
+
+      const systemPrompt = `És o assistente virtual oficial da ETPC (Escola Técnico-Profissional de Cantanhede).
+
+REGRAS OBRIGATÓRIAS DE RESPOSTA:
+1. Responde à pergunta do utilizador utilizando EXCLUSIVAMENTE a informação contida na [BASE DE CONHECIMENTO ETPC] abaixo.
+2. Se a pergunta for sobre futebol, culinária, política, conhecimentos gerais ou qualquer assunto sem relação com a ETPC, responde exatamente: "Lamento, mas apenas posso responder a questões relacionadas com a Escola Técnico-Profissional de Cantanhede."
+3. Se o utilizador perguntar algo sobre a ETPC mas essa informação NÃO constar na [BASE DE CONHECIMENTO ETPC], responde exatamente: "Lamento, mas não disponho de informação suficiente no site da ETPC para responder a essa questão."
+4. NUNCA inventes dados nem adiciones conhecimento exterior.
+5. Sempre que responderes com informação válida da escola, inclui no final da mensagem o link oficial: https://etpc.pt/
+
+[BASE DE CONHECIMENTO ETPC]:
+${ETPC_KNOWLEDGE_BASE}`;
 
       try {
-        const { data, error } = await supabaseClient
-          .from('etpc_knowledge')
-          .select('*')
-          .eq('slug', slugKey)
-          .limit(1);
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${GROQ_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: question }
+            ],
+            temperature: 0.1
+          })
+        });
 
         loadingMsg.remove();
 
-        if (error || !data || data.length === 0) {
-          appendMessage("Lamento, não foi possível encontrar essa informação de momento.", 'bot');
-          return;
+        if (!response.ok) {
+          throw new Error("Erro na API");
         }
 
-        const match = data[0];
-        let reply = `<strong>${match.titulo}</strong><br><br>${match.conteudo}`;
-        if (match.url) {
-          reply += `<br><a href="${match.url}" target="_blank" class="source-link">Ver página oficial no site da ETPC</a>`;
+        const data = await response.json();
+        let replyText = data.choices[0]?.message?.content || "Erro ao gerar resposta.";
+
+        let fullReply = replyText.replace(/\n/g, '<br>');
+        
+        if (!replyText.includes("Lamento") && !fullReply.includes("href")) {
+          fullReply += `<br><a href="https://etpc.pt/" target="_blank" class="source-link">🔗 Consultar página oficial da ETPC</a>`;
         }
-        appendMessage(reply, 'bot', true);
+
+        appendMessage(fullReply, 'bot', true);
 
       } catch (err) {
         if (loadingMsg) loadingMsg.remove();
-        appendMessage("Erro na ligação à base de dados.", 'bot');
+        appendMessage('O assistente está temporariamente indisponível. Por favor, verifique a sua ligação ou chave de API.', 'error');
       } finally {
         setLoading(false);
       }
-    }
+    });
 
     function appendMessage(text, type, isHTML = false) {
       const div = document.createElement('div');
